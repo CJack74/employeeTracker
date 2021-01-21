@@ -20,13 +20,130 @@ connection.connect(function(err) {
   
     console.log("connected as id " + connection.threadId);
     hello();
-  });
+});
+
+function inititialize() {
+  console.log("hello") 
+  loadPrompts(); 
+}
+
+async function loadPrompts() {
+  var { options } = await prompt([
+    {
+      type: "list",
+      name: "options",
+      message: "What do you need",
+      options: [
+        {
+          name: "View All Employees",
+          value: "view-employees"
+        },
+        {
+          name: "View Employees by Department",
+          value: "view-employees-department"
+        },
+        {
+          name: "View Employees by Manager",
+          value: "view-employees-manager"
+        },
+        {
+          name: "Add a Employee",
+          value: "add-employee"
+        },
+        {
+          name: "Update Employee Role",
+          value: "update-employee-role"
+        },
+        {
+          name: "View All Roles",
+          value: "view-roles"
+        },
+        {
+          name: "Add Role",
+          value: "add-role"
+        },
+        {
+          name: "View All Departments",
+          value: "view-departments"
+        },
+        {
+          name: "Add Department",
+          value: "add-department"
+        },
+        {
+          name: "Quit",
+          value: "quit"
+        },
+      ]
+    }
+  ]);
+
+  //Path depending on what the user chooses 
+  switch (choice) {
+    case "view-employees":
+      return viewEmployees();
+    case "view-employees-department":
+      return viewEmployeesDepartment();
+    case "view-employees-manager":
+      return viewEmployeesManager();
+    case "add-employee":
+      return addEmployee(); 
+    case "update-employee-role":
+      return updateEmployeeRole();
+    case "view-departments":
+      return viewDepartments(); 
+    case "add-departments":
+      return addDepartments(); 
+    case "view-roles":
+      return viewRoles();
+    case "add-roles":
+      return addRoles();  
+    default:
+      return quit();    
+  }
+}
+
+// Function for viewing employees in db
+async function viewEmployees() {
+  var employees = await db.findAllEmployees();
+
+  console.log("\n");
+  console.table(employees);
+
+  loadPrompts();
+}
+
+// Function for viewing employees by department
+async function viewEmployeesDepartment() {
+  const departments = await db.findAllDepartments();
+
+  const departmentSelect = departments.map(({ id, name }) => ({
+    name: name,
+    value: id
+  })); 
+
+  const { departmentId } = await prompt([
+    {
+      type: "list",
+      name: "departmentId",
+      message: "What department are you searching for employees?",
+      select: departmentSelect
+    }
+  ]);
+
+  const employees = await db.findAllEmployeesByDepartment(departmentId);
+  
+  console.log("\n");
+  console.table(employees);
+
+  loadPrompts();
+}
+
+
 
 
   //allows user to ADD departments, roles, and employees
-  function hello() {
-    console.log("hello")  
-  }
+
  
   
 
