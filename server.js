@@ -129,12 +129,64 @@ async function viewEmployeesDepartment() {
       message: "What department are you searching for employees?",
       select: departmentSelect
     }
+
   ]);
 
   const employees = await db.findAllEmployeesByDepartment(departmentId);
   
   console.log("\n");
   console.table(employees);
+
+  loadPrompts();
+}
+
+// Function for updating employee's role
+async function updateEmployeeRole() {
+  const employees = await db.findAllEmployees();
+
+  const employeeSelect = employees.map(({ id, first_name, last_name }) => ({
+    name: `${first_name} ${last_name}`,
+    value: id
+  }));
+
+  const { employeeId } = await prompt([
+    {
+      type: "list",
+      name: "employeeId",
+      message: "Which employee's role would you like to change?",
+      select: employeeSelect
+    }
+  ]);
+
+  const roles = await db.findAllRoles();
+
+  const roleSelect = roles.map(({ id, title }) => ({
+    name: title,
+    value: id
+  }));
+
+  const { roleId } = await prompt([
+    {
+      type: "list",
+      name: "roleId",
+      message: "Which role do you want to assign the selected employee?",
+      select: roleSelect
+    }
+  ]);
+
+  await db.updateEmployeeRole(employeeId, roleId);
+
+  console.log("Employee's role has been updated");
+
+  loadPrompts();
+}
+
+// Function to view role
+async function viewRoles() {
+  const roles = await db.findAllRoles();
+
+  console.log("\n");
+  console.table(roles);
 
   loadPrompts();
 }
